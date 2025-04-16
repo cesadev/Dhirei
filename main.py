@@ -1,60 +1,59 @@
 import subprocess
 import sys
+import os
 from time import sleep
 
 def instalar_yt_dlp():
     try:
-        # Verifica se a biblioteca yt_dlp está instalada
         import yt_dlp
         print("A biblioteca yt-dlp já está instalada.")
     except ImportError:
-        # Caso não esteja instalada, instala automaticamente
         print("A biblioteca yt-dlp não está instalada. Instalando agora...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", "yt-dlp"])
         print("yt-dlp instalado com sucesso!")
 
+def get_pasta_videos():
+    pasta = os.path.join(os.path.dirname(os.path.abspath(__file__)), "videos")
+    os.makedirs(pasta, exist_ok=True)
+    return pasta
+
 def baixar_playlist():
     try:
-        instalar_yt_dlp()  # Verifica ou instala yt-dlp antes de iniciar
+        instalar_yt_dlp()
         import yt_dlp
 
-        # Solicita o URL da playlist ao usuário
-        url = input("Enter the URL of the YouTube playlist: ").strip()
-        pasta_destino = input("Enter the folder path where you want to save the videos (or press Enter to use the current directory): ")
-        if not pasta_destino.strip():
-            pasta_destino = "."  # Usa o diretório atual como padrão
+        url = input("Digite a URL da playlist: ").strip()
+        pasta_destino = get_pasta_videos()
 
-        # Configuração para baixar vídeos da playlist
         ydl_opts = {
-            'format': 'best',  # Baixa o melhor formato único disponível (vídeo com áudio integrado)
-            'outtmpl': f'{pasta_destino}/%(playlist_title)s/%(title)s.%(ext)s',  # Organiza em subpastas com o nome da playlist
-            'noplaylist': False  # Certifica que a playlist será baixada
+            'format': 'bestvideo+bestaudio/best',
+            'merge_output_format': 'mp4',
+            'outtmpl': f'{pasta_destino}/%(playlist_title)s/%(title)s.%(ext)s',
+            'noplaylist': False
         }
 
-        print("Downloading playlist...")
+        print("Baixando playlist na melhor qualidade...")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
-        print("Playlist download completed successfully!")
+        print("Download concluído com sucesso!")
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Ocorreu um erro: {e}")
 
 def baixar_video():
     try:
-        instalar_yt_dlp()  # Verifica ou instala yt-dlp antes de iniciar
+        instalar_yt_dlp()
         import yt_dlp
 
         url = input("Digite o URL do vídeo do YouTube: ").strip()
-        pasta_destino = input("Digite o caminho da pasta onde deseja salvar o vídeo (ou pressione Enter para usar a pasta atual): ")
-        if not pasta_destino.strip():
-            pasta_destino = "."  # Define a pasta atual como padrão
+        pasta_destino = get_pasta_videos()
 
-        # Configuração para baixar apenas o melhor formato único disponível
         ydl_opts = {
-            'format': 'best',  # Baixa o melhor formato único disponível (vídeo com áudio)
+            'format': 'bestvideo+bestaudio/best',
+            'merge_output_format': 'mp4',
             'outtmpl': f'{pasta_destino}/%(title)s.%(ext)s'
         }
 
-        print("Baixando o melhor formato disponível...")
+        print("Baixando vídeo na melhor qualidade disponível...")
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
         print("Download concluído!")
@@ -64,9 +63,12 @@ def baixar_video():
 while True:
     estilo = 0
     while estilo not in [1, 2]:
-        estilo = int(input('Quer baixar vídeo ou playlist?\n[1]:Vídeo\n[2]:Playlist\nSua resposta: '))
+        try:
+            estilo = int(input('Quer baixar vídeo ou playlist?\n[1]: Vídeo\n[2]: Playlist\nSua resposta: '))
+        except:
+            estilo = 0
     if estilo == 1:
         baixar_video()
-    elif estilo == 2:
+    else:
         baixar_playlist()
     sleep(1)
