@@ -1,1 +1,3 @@
-Vou te mandar um vídeo ensinando a baixar e usar.
+- Instale o Python: https://www.python.org/downloads/
+- Execute o FFMPEG_Installer.exe (Só a primeira vez)
+- Execute o Dhirei.exe (Ou um atalho) sempre que quiser baixar vídeos do youtube
